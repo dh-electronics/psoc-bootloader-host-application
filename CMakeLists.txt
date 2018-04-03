@@ -9,23 +9,31 @@ include_directories(
     ${DHCOM_HAL_INCLUDE}
 )
 
+add_definitions(-DCALL_CON=)
+
 set(SOURCES
     main.cpp
-    cybtldr_api2.c
-    cybtldr_api.c
-    cybtldr_command.c
-    cybtldr_parse.c
+    SpiDevice.cpp
+    Bootloader.cpp
+    cybootloaderutils/cybtldr_api2.c
+    cybootloaderutils/cybtldr_api.c
+    cybootloaderutils/cybtldr_command.c
+    cybootloaderutils/cybtldr_parse.c
 )
 
 set(HEADERS
-    cybtldr_utils.h
-    cybtldr_api2.h
-    cybtldr_api.h
-    cybtldr_command.h
-    cybtldr_parse.h
+    CommDevice.h
+    SpiDevice.h
+    Bootloader.h
+    cybootloaderutils/cybtldr_utils.h
+    cybootloaderutils/cybtldr_api2.h
+    cybootloaderutils/cybtldr_api.h
+    cybootloaderutils/cybtldr_command.h
+    cybootloaderutils/cybtldr_parse.h
 )
 
 file(GLOB_RECURSE OTHER . *.cfg *.txt *.sh)
 
 find_library(DHCOM_HAL DHCOM_HAL)
 
+add_executable(bootloader-tool ${SOURCES} ${HEADERS})
