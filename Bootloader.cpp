@@ -1,11 +1,16 @@
 #include "Bootloader.h"
 #include "hal/GPIO.h"
-#include "cybtldr_api.h"
-#include "cybtldr_api2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
+
+
+extern "C"
+{
+#include "cybtldr_api.h"
+#include "cybtldr_api2.h"
+}
 
 
 using namespace dhcom;

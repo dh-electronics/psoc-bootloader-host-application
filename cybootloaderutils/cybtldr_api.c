@@ -18,6 +18,8 @@
 /* The minimum array id for EEPROM arrays. */
 #define MIN_EEPROM_ARRAY 0x40
 
+#define min(X,Y) (X<Y?X:Y)  // PK: workaround around the undefined min
+
 uint32_t g_validRows[MAX_FLASH_ARRAYS];
 static CyBtldr_CommunicationsData* g_comm;
 

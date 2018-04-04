@@ -9,7 +9,9 @@ include_directories(
     ${DHCOM_HAL_INCLUDE}
 )
 
-add_definitions(-DCALL_CON=)
+add_definitions(
+    -DCALL_CON=
+)
 
 set(SOURCES
     main.cpp
@@ -36,4 +38,5 @@ file(GLOB_RECURSE OTHER . *.cfg *.txt *.sh)
 
 find_library(DHCOM_HAL DHCOM_HAL)
 
-add_executable(bootloader-tool ${SOURCES} ${HEADERS} ${DHCOM_HAL})
+add_executable(bootloader-tool ${SOURCES} ${HEADERS})
+target_link_libraries(bootloader-tool ${DHCOM_HAL})
