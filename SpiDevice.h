@@ -11,11 +11,12 @@ public:
     SpiDevice(const char *devname, int speed);
     virtual ~SpiDevice();
 
-    virtual bool open();
-    virtual void close();
-    virtual int read();
-    virtual int write();
+    virtual int open();
+    virtual int close();
+    virtual int read(uint8_t *buf, int bytes);
+    virtual int write(uint8_t *buf, int bytes);
+    virtual int getMaxTransferSize() const;
 
 private:
-    dhcom::S
+    dhcom::SPI  spi_;
 };

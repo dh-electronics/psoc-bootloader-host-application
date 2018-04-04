@@ -36,4 +36,4 @@ file(GLOB_RECURSE OTHER . *.cfg *.txt *.sh)
 
 find_library(DHCOM_HAL DHCOM_HAL)
 
-add_executable(bootloader-tool ${SOURCES} ${HEADERS})
+add_executable(bootloader-tool ${SOURCES} ${HEADERS} ${DHCOM_HAL})
