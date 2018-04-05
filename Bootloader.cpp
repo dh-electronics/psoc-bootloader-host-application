@@ -93,6 +93,7 @@ Bootloader::Bootloader(CommDevice *dev, uint16_t xresPin, uint32_t expSiId, uint
     commData.ReadData = readData;
     commData.WriteData = writeData;
     commData.MaxTransferSize = dev->getMaxTransferSize();
+    self_ = this;
 }
 
 
@@ -146,35 +147,36 @@ int Bootloader::load(const char *file)
     do
     {
         resetDevice(xres);
-
-        printf("\nErasing...\n");
+        usleep(100);
+/*
+        printf("\nErasing for file %s...\n", file);
         int err = CyBtldr_Erase(file, NULL, &commData, progressUpdate);
         if(err != CYRET_SUCCESS)
         {
             fprintf(stderr, "\n...failed with: %s.\n", getBlErrorString(err));
             break;
         }
-        printf("\n...done\n\nProgramming...\n");
-        err = CyBtldr_Program(file, NULL, 0, &commData, progressUpdate);    // not starting the app
+        */
+        printf("\nProgramming file %s...\n", file);
+        int err = CyBtldr_Program(file, NULL, 1, &commData, progressUpdate);    // not starting the app
         if(err != CYRET_SUCCESS)
         {
-            fprintf(stderr, "\n...failed with: %s.\n", getBlErrorString(err));
+            fprintf(stderr, "...failed with: %s.\n", getBlErrorString(err));
             break;
         }
-        printf("\n...done\n\nVerifying...\n");
+        printf("...done\n\nVerifying...\n");
         err = CyBtldr_Verify(file, NULL, &commData, progressUpdate);
         if(err != CYRET_SUCCESS)
         {
-            fprintf(stderr, "\n...failed with: %s.\n", getBlErrorString(err));
+            fprintf(stderr, "...failed with: %s.\n", getBlErrorString(err));
             break;
         }
-        printf("\n...done\n");
+        printf("...done\n");
 
         resetDevice(xres);
         retcode = EXIT_SUCCESS;
     }
     while(false);
-
 
     xres.close();
 
@@ -199,6 +201,7 @@ int Bootloader::closeConnection()
 int Bootloader::readData(uint8_t *buf, int bytes)
 {
     assert(self_);
+    usleep(20);
     return self_->device_->read(buf, bytes);
 }
 

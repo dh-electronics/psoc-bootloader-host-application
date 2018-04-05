@@ -1,5 +1,7 @@
 #include "SpiDevice.h"
+#include <unistd.h>
 #include <cybtldr_utils.h>
+#include <string.h>
 
 
 using namespace dhcom;
@@ -40,8 +42,11 @@ int SpiDevice::close()
 
 int SpiDevice::read(uint8_t *buf, int length)
 {
+    uint8_t dummyBytes[MAX_TRANSFER_SIZE];
+    memset(dummyBytes, 0, length);
+
     STATUS st;
-    spi_.transceive(buf, NULL, length, &st);
+    spi_.transceive(dummyBytes, buf, length, &st);
     return STATUS_SUCCESS == st ? CYRET_SUCCESS : CYRET_ERR_UNK;
 }
 
@@ -49,7 +54,7 @@ int SpiDevice::read(uint8_t *buf, int length)
 int SpiDevice::write(uint8_t *buf, int length)
 {
     STATUS st;
-    spi_.transceive(NULL, buf, length, &st);
+    spi_.transceive(buf, NULL, length, &st);
     return STATUS_SUCCESS == st ? CYRET_SUCCESS : CYRET_ERR_UNK;
 }
 

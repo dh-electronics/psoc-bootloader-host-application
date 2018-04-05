@@ -18,7 +18,7 @@ public:
     virtual int getMaxTransferSize() const;
 
 private:
-    static const int MAX_TRANSFER_SIZE = 1024;
+    static const int MAX_TRANSFER_SIZE = 512;
 
     dhcom::SPI  spi_;
     const int   speed_;

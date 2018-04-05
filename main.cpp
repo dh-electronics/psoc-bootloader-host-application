@@ -10,7 +10,7 @@
 
 #define DEFAULT_XRES_GPIO   (4)                   // corresponds to GPIO B on iMX6
 #define DEFAULT_DEVICE_NAME ("/dev/spidev0.2")
-#define DEFAULT_SPEED       (1600000)             // 1.6MHz
+#define DEFAULT_SPEED       (1000000)             // 1MHz
 #define DEFAULT_SILICON_ID  (0x190011a9)
 #define DEFAULT_SILICON_REV (0)
 
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     uint32_t silicon_rev = 0xFFFFFFFF;
 
     int opt;
-    while(opt = getopt(argc, argv, "hx:d:s:i:r:"))
+    while(opt = getopt(argc, argv, "hx:d:s:i:r:") != -1)
     {
         const char *err_string = NULL;
         switch(opt)
@@ -55,56 +55,56 @@ int main(int argc, char **argv)
         case 'x':
             if(xres_gpio >= 0)
             {
-                err_string = "/nXRES GPIO (-x) already specified. Aborting./n";
+                err_string = "\nXRES GPIO (-x) already specified. Aborting.\n";
                 break;
             }
 
             if(1 != sscanf(optarg, "%d", &xres_gpio))
-                err_string = "/nArgument conversion error for option -x. Aborting./n";
+                err_string = "\nArgument conversion error for option -x. Aborting.\n";
             break;
 
         case 'd':
             if(!device_name)
                 device_name = optarg;
             else
-                err_string = "/nDevice (-d) already specified. Aborting./n";
+                err_string = "\nDevice (-d) already specified. Aborting.\n";
             break;
 
         case 's':
             if(speed >= 0)
             {
-                err_string = "/nSpeed (-s) is already specified. Aborting./n";
+                err_string = "\nSpeed (-s) is already specified. Aborting.\n";
                 break;
             }
 
             if(1 != sscanf(optarg, "%d", &speed))
-                err_string = "/nArgument conversion error for option -s. Aborting./n";
+                err_string = "\nArgument conversion error for option -s. Aborting.\n";
             break;
 
         case 'i':
             if(silicon_id != 0xFFFFFFFF)
             {
-                err_string = "/nSilicon ID (-i) is already specified. Aborting./n";
+                err_string = "\nSilicon ID (-i) is already specified. Aborting.\n";
                 break;
             }
 
             if(1 != sscanf(optarg, "%ux", &silicon_id))
-                err_string = "/nArgument conversion error for option -i. Aborting./n";
+                err_string = "\nArgument conversion error for option -i. Aborting.\n";
             break;
 
         case 'r':
             if(silicon_rev != 0xFFFFFFFF)
             {
-                err_string = "/nSilicon revision (-r) is already specified. Aborting./n";
+                err_string = "\nSilicon revision (-r) is already specified. Aborting.\n";
                 break;
             }
 
             if(1 != sscanf(optarg, "%ux", &silicon_rev))
-                err_string = "/nArgument conversion error for option -r. Aborting./n";
+                err_string = "\nArgument conversion error for option -r. Aborting.\n";
             break;
 
         default:
-            fprintf(stderr, "/nUnknown option -%c. Aborting./n", char(opt));
+            fprintf(stderr, "\nUnknown option -%c. Aborting.\n", char(opt));
             exit(EXIT_FAILURE);
         }
 
@@ -117,11 +117,11 @@ int main(int argc, char **argv)
 
     if(optind >= argc)
     {
-        fprintf(stderr, "/nExpected a .cyacd file name as the last arg. Aborting./n");
+        fprintf(stderr, "\nExpected a .cyacd file name as the last arg. Aborting.\n");
         exit(EXIT_FAILURE);
     }
 
-    const char *cyacd_filename = optarg;
+    const char *cyacd_filename = argv[optind];
 
     // setting the default values where needed
     if(xres_gpio < 0)
@@ -143,17 +143,17 @@ int main(int argc, char **argv)
     }
     else if(strstr(device_name, "/dev/i2c") == device_name)
     {
-        fprintf(stderr, "/nDevice i2c not supported yet. Aborting./n");
+        fprintf(stderr, "\nDevice i2c not supported yet. Aborting.\n");
         exit(EXIT_FAILURE);
     }
     else if(strstr(device_name, "/dev/tty") == device_name)
     {
-        fprintf(stderr, "/nDevice tty not supported yet. Aborting./n");
+        fprintf(stderr, "\nDevice tty not supported yet. Aborting.\n");
         exit(EXIT_FAILURE);
     }
     else
     {
-        fprintf(stderr, "/nUnknown device. Aborting./n");
+        fprintf(stderr, "\nUnknown device. Aborting.\n");
         exit(EXIT_FAILURE);
     }
 

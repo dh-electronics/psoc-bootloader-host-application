@@ -316,13 +316,13 @@ int CyBtldr_Program(const char* file, const uint8_t* securityKey, uint8_t appId,
 int CyBtldr_Erase(const char* file, const uint8_t* securityKey, CyBtldr_CommunicationsData* comm, 
     CyBtldr_ProgressUpdate* update)
 {
-    return CyBtldr_RunAction(ERASE, file, securityKey, 0, comm, update);
+    return CyBtldr_RunAction(ERASE, file, securityKey, 1, comm, update); // PK: appId was 0 which led to error
 }
 
 int CyBtldr_Verify(const char* file, const uint8_t* securityKey, CyBtldr_CommunicationsData* comm, 
     CyBtldr_ProgressUpdate* update)
 {
-    return CyBtldr_RunAction(VERIFY, file, securityKey, 0, comm, update);
+    return CyBtldr_RunAction(VERIFY, file, securityKey, 1, comm, update); // PK: appId was 0 which led to error
 }
 
 int CyBtldr_Abort(void)
