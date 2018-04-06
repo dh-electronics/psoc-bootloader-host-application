@@ -18,7 +18,7 @@ public:
     virtual int getMaxTransferSize() const;
 
 private:
-    static const int MAX_TRANSFER_SIZE = 512;
+    static const int MAX_TRANSFER_SIZE = 64;    //< this amout is golden, more gives a bootloader error
 
     dhcom::SPI  spi_;
     const int   speed_;

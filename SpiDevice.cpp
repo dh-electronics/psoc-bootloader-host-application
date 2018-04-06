@@ -24,11 +24,11 @@ int SpiDevice::open()
 {
     STATUS st = spi_.open();
     if(STATUS_SUCCESS != st)
-        return CYRET_ERR_UNK;
+        return st;
 
     st = spi_.setCommParams(SPI::MODE_0, 8, speed_);
     if(STATUS_SUCCESS != st)
-        return CYRET_ERR_UNK;
+        return st;
 
     return CYRET_SUCCESS;
 }
@@ -42,11 +42,8 @@ int SpiDevice::close()
 
 int SpiDevice::read(uint8_t *buf, int length)
 {
-    uint8_t dummyBytes[MAX_TRANSFER_SIZE];
-    memset(dummyBytes, 0, length);
-
     STATUS st;
-    spi_.transceive(dummyBytes, buf, length, &st);
+    spi_.transceive(NULL, buf, length, &st);
     return STATUS_SUCCESS == st ? CYRET_SUCCESS : CYRET_ERR_UNK;
 }
 

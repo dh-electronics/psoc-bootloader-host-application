@@ -22,8 +22,73 @@ static CyBtldr_CommunicationsData commData;
 
 static const char* getBlErrorString(int err)
 {
+    if(CYRET_ERR_COMM_MASK & err)
+    {   // DHCOM_HAL errors
+        switch(STATUS(err & ~CYRET_ERR_COMM_MASK))
+        {
+        case STATUS_DEVICE_DOESNT_EXIST:
+            return "The requested I/O device does not exist for this target hardware";
+        case STATUS_DEVICE_OPEN_FAILED:
+            return "Opening I/O device failed";
+        case STATUS_DEVICE_CLOSE_FAILED:
+            return "Closing I/O failed";
+        case STATUS_DEVICE_NOT_OPEN:
+            return "device must be open to perform the requested operation";
+        case STATUS_DEVICE_ALREADY_OPEN:
+            return "trying to open the already open device";
+        case STATUS_DEVICE_READ_FAILED:
+            return "reading from the device failed";
+        case STATUS_DEVICE_WRITE_FAILED:
+            return "writing to the device failed";
+        case STATUS_DEVICE_CONFIG_FAILED:
+            return "attempt to configure the device failed (parameters invalid)";
+        case STATUS_I2C_SLAVE_SELECT_FAILED:
+            return "I2C Slave select failed";
+        default:
+            return "Communication Interface unknown error";
+        }
+    }
+
+
+    if(CYRET_ERR_BTLDR_MASK & err)
+    {   // Bootloader errors
+        switch(err & ~CYRET_ERR_BTLDR_MASK)
+        {
+        case CYBTLDR_STAT_ERR_KEY:
+            return "The provided key does not match the expected value";
+        case CYBTLDR_STAT_ERR_VERIFY:
+            return "The verification of flash failed";
+        case CYBTLDR_STAT_ERR_LENGTH:
+            return "The amount of data available is outside the expected range ";
+        case CYBTLDR_STAT_ERR_DATA:
+            return "The data is not of the proper form";
+        case CYBTLDR_STAT_ERR_CMD:
+            return "The command is not recognized";
+        case CYBTLDR_STAT_ERR_DEVICE:
+            return "The expected device does not match the detected device";
+        case CYBTLDR_STAT_ERR_VERSION:
+            return "The bootloader version detected is not supported";
+        case CYBTLDR_STAT_ERR_CHECKSUM:
+            return "The checksum does not match the expected value";
+        case CYBTLDR_STAT_ERR_ARRAY:
+            return "The flash array is not valid";
+        case CYBTLDR_STAT_ERR_ROW:
+            return "The flash row is not valid";
+        case CYBTLDR_STAT_ERR_PROTECT:
+            return "The flash row is protected and can not be programmed";
+        case CYBTLDR_STAT_ERR_APP:
+            return "The application is not valid and cannot be set as active";
+        case CYBTLDR_STAT_ERR_ACTIVE:
+            return "The application is currently marked as active";
+        default:
+        case CYBTLDR_STAT_ERR_UNK:
+            return "An unknown error occurred";
+        }
+    }
+
+
     switch(err)
-    {
+    {   // Bootloader host errors
     case CYRET_ERR_FILE:
         return "File is not accessible";
     case CYRET_ERR_EOF:
@@ -75,7 +140,7 @@ static const char * getGpioErrorString(STATUS status)
 
 static void progressUpdate(uint8_t arrayId, uint16_t rowNum)
 {
-    printf("Array: %hhd\tRow: %hd  \r", arrayId, rowNum);
+    printf("Array: %hhd\tRow: %hd  \r", arrayId, rowNum); fflush(stdout);
 }
 
 
@@ -106,27 +171,14 @@ Bootloader::~Bootloader()
 static bool resetDevice(GPIO &xres)
 {
     printf("\nResetting device...\n");
-    STATUS st = xres.open();
-    if(st != STATUS_SUCCESS)
-    {
-        fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
-        return false;
-    }
-    st = xres.setDirection(GPIO::DIRECTION_OUTPUT);
+    STATUS st = xres.set(false);    // pulling low
     if(st != STATUS_SUCCESS)
     {
         fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
         return false;
     }
 
-    st = xres.set(false);    // pulling low
-    if(st != STATUS_SUCCESS)
-    {
-        fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
-        return false;
-    }
-
-    usleep(100);
+    usleep(50000);  // 50 mS be in reset
 
     st = xres.set(true);     // pulling high
     if(st != STATUS_SUCCESS)
@@ -142,38 +194,34 @@ static bool resetDevice(GPIO &xres)
 int Bootloader::load(const char *file)
 {
     GPIO xres(xresPin_);
+    STATUS st = xres.open();
+    if(st != STATUS_SUCCESS)
+    {
+        fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
+        return EXIT_FAILURE;
+    }
 
     int retcode = EXIT_FAILURE;
     do
     {
+        st = xres.setDirection(GPIO::DIRECTION_OUTPUT);
+        if(st != STATUS_SUCCESS)
+        {
+            fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
+            return false;
+        }
+
         resetDevice(xres);
-        usleep(100);
-/*
-        printf("\nErasing for file %s...\n", file);
-        int err = CyBtldr_Erase(file, NULL, &commData, progressUpdate);
-        if(err != CYRET_SUCCESS)
-        {
-            fprintf(stderr, "\n...failed with: %s.\n", getBlErrorString(err));
-            break;
-        }
-        */
-        printf("\nProgramming file %s...\n", file);
-        int err = CyBtldr_Program(file, NULL, 1, &commData, progressUpdate);    // not starting the app
-        if(err != CYRET_SUCCESS)
-        {
-            fprintf(stderr, "...failed with: %s.\n", getBlErrorString(err));
-            break;
-        }
-        printf("...done\n\nVerifying...\n");
-        err = CyBtldr_Verify(file, NULL, &commData, progressUpdate);
+        usleep(100000); // wait 100mS for PSOC to boot
+
+        printf("\nProgramming/Verifying file %s...\n", file);
+        int err = CyBtldr_Program(file, NULL, 0, &commData, progressUpdate);
         if(err != CYRET_SUCCESS)
         {
             fprintf(stderr, "...failed with: %s.\n", getBlErrorString(err));
             break;
         }
         printf("...done\n");
-
-        resetDevice(xres);
         retcode = EXIT_SUCCESS;
     }
     while(false);
@@ -201,7 +249,7 @@ int Bootloader::closeConnection()
 int Bootloader::readData(uint8_t *buf, int bytes)
 {
     assert(self_);
-    usleep(20);
+    usleep(50000);  // 20 mS wait for Flash to be written
     return self_->device_->read(buf, bytes);
 }
 
@@ -209,5 +257,6 @@ int Bootloader::readData(uint8_t *buf, int bytes)
 int Bootloader::writeData(uint8_t *buf, int bytes)
 {
     assert(self_);
+    usleep(1000);  // 20 mS wait for Flash to be written
     return self_->device_->write(buf, bytes);
 }
