@@ -168,10 +168,10 @@ Bootloader::~Bootloader()
 }
 
 
-static bool resetDevice(GPIO &xres)
+static bool resetDevice(GPIO *xres)
 {
     printf("\nResetting device...\n");
-    STATUS st = xres.set(false);    // pulling low
+    STATUS st = xres->set(false);    // pulling low
     if(st != STATUS_SUCCESS)
     {
         fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
@@ -180,7 +180,7 @@ static bool resetDevice(GPIO &xres)
 
     usleep(50000);  // 50 mS be in reset
 
-    st = xres.set(true);     // pulling high
+    st = xres->set(true);     // pulling high
     if(st != STATUS_SUCCESS)
     {
         fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
@@ -193,26 +193,39 @@ static bool resetDevice(GPIO &xres)
 
 int Bootloader::load(const char *file)
 {
-    GPIO xres(xresPin_);
-    STATUS st = xres.open();
-    if(st != STATUS_SUCCESS)
+    GPIO *xres = NULL;
+    if(xresPin_ != XRES_GPIO_SUPRESS)
     {
-        fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
-        return EXIT_FAILURE;
+        xres = new GPIO(xresPin_);
+        if(!xres)
+        {
+            fprintf(stderr, "\nCannot create XRES GPIO\n");
+            return EXIT_FAILURE;
+        }
     }
 
     int retcode = EXIT_FAILURE;
     do
     {
-        st = xres.setDirection(GPIO::DIRECTION_OUTPUT);
-        if(st != STATUS_SUCCESS)
+        if(xres)
         {
-            fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
-            return false;
-        }
+            STATUS st = xres->open();
+            if(st != STATUS_SUCCESS)
+            {
+                fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
+                break;
+            }
 
-        resetDevice(xres);
-        usleep(100000); // wait 100mS for PSOC to boot
+            st = xres->setDirection(GPIO::DIRECTION_OUTPUT);
+            if(st != STATUS_SUCCESS)
+            {
+                fprintf(stderr, "\n...failed with: %s.\n", getGpioErrorString(st));
+                break;
+            }
+
+            resetDevice(xres);
+            usleep(100000); // wait 100mS for PSOC to boot
+        }
 
         printf("\nProgramming/Verifying file %s...\n", file);
         int err = CyBtldr_Program(file, NULL, 0, &commData, progressUpdate);
@@ -226,7 +239,11 @@ int Bootloader::load(const char *file)
     }
     while(false);
 
-    xres.close();
+    if(xres)
+    {
+        xres->close();
+        delete xres;
+    }
 
     return retcode;
 }

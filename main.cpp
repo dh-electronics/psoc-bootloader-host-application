@@ -8,7 +8,6 @@
 #include <string.h>
 
 
-#define DEFAULT_XRES_GPIO   (4)                   // corresponds to GPIO B on iMX6
 #define DEFAULT_DEVICE_NAME ("/dev/spidev0.2")
 #define DEFAULT_SPEED       (1000000)             // 1MHz
 #define DEFAULT_SILICON_ID  (0x190011a9)
@@ -17,13 +16,13 @@
 
 static void showHelp()
 {
-    printf( "bootloader-tool [-r XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
-           "\n\tXRES-GPIO\t- gpio in the form for export in /sys/class/gpio"
-           "\n\tDEVICE\t- the full pathname of the SPI/I2C/UART device, e.g /dev/spidev0.2"
-           "\n\tSPEED\t- speed in bps."
-           "\n\tID\t- silicon id, 32-bit HEX."
-           "\n\tREV\t- silicon revision, 32-bit HEX."
-           "\n");
+    printf( "bootloader-tool [-x XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
+            "\n\tXRES-GPIO\t- gpio in the form for export in /sys/class/gpio"
+            "\n\tDEVICE\t- the full pathname of the SPI/I2C/UART device, e.g /dev/spidev0.2"
+            "\n\tSPEED\t- speed in bps."
+            "\n\tID\t- silicon id, 32-bit HEX."
+            "\n\tREV\t- silicon revision, 32-bit HEX."
+            "\n");
 }
 
 
@@ -36,7 +35,7 @@ int main(int argc, char **argv)
     }
 
 
-    int xres_gpio = -1;
+    int xres_gpio = XRES_GPIO_INVALID;
     const char *device_name = NULL;
     int speed = -1;
     uint32_t silicon_id = 0xFFFFFFFF;
@@ -56,6 +55,12 @@ int main(int argc, char **argv)
             if(xres_gpio >= 0)
             {
                 err_string = "\nXRES GPIO (-x) already specified. Aborting.\n";
+                break;
+            }
+
+            if(!optarg)
+            {
+                xres_gpio = XRES_GPIO_SUPRESS;
                 break;
             }
 
@@ -124,8 +129,8 @@ int main(int argc, char **argv)
     const char *cyacd_filename = argv[optind];
 
     // setting the default values where needed
-    if(xres_gpio < 0)
-        xres_gpio = DEFAULT_XRES_GPIO;
+    if(xres_gpio == XRES_GPIO_INVALID)
+        xres_gpio = XRES_GPIO_DEFAULT;
     if(!device_name)
         device_name = DEFAULT_DEVICE_NAME;
     if(speed < 0)

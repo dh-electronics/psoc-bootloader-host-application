@@ -4,6 +4,11 @@
 #include "CommDevice.h"
 
 
+#define XRES_GPIO_DEFAULT   (4)                   // corresponds to GPIO B on iMX6
+#define XRES_GPIO_INVALID   (-1)
+#define XRES_GPIO_SUPRESS   (-2)                  // no gpio pin will be used
+
+
 class Bootloader
 {
 public:
