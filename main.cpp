@@ -16,7 +16,8 @@
 
 static void showHelp()
 {
-    printf( "bootloader-tool [-x XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
+    printf( "bootloader-tool [-x XRES-GPIO | -n] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
+            "\n\t-n\t- do not use XRES-GPIO"
             "\n\tXRES-GPIO\t- gpio in the form for export in /sys/class/gpio"
             "\n\tDEVICE\t- the full pathname of the SPI/I2C/UART device, e.g /dev/spidev0.2"
             "\n\tSPEED\t- speed in bps."
@@ -42,7 +43,7 @@ int main(int argc, char **argv)
     uint32_t silicon_rev = 0xFFFFFFFF;
 
     int opt;
-    while(opt = getopt(argc, argv, "hx:d:s:i:r:") != -1)
+    while((opt = getopt(argc, argv, "hnx:d:s:i:r:")) != -1)
     {
         const char *err_string = NULL;
         switch(opt)
@@ -51,16 +52,14 @@ int main(int argc, char **argv)
             showHelp();
             exit(EXIT_SUCCESS);
 
+        case 'n':
+            xres_gpio = XRES_GPIO_SUPRESS;
+            break;
+
         case 'x':
-            if(xres_gpio >= 0)
+            if(xres_gpio != XRES_GPIO_INVALID)
             {
                 err_string = "\nXRES GPIO (-x) already specified. Aborting.\n";
-                break;
-            }
-
-            if(!optarg)
-            {
-                xres_gpio = XRES_GPIO_SUPRESS;
                 break;
             }
 
