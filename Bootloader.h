@@ -27,7 +27,7 @@ private:
     const uint32_t              expSiId_;               //< expected silicon id
     const uint32_t              expSiRev_;              //< expected silicon revision
     uint32_t                    blVer_;                 //< bootloader version (read out)
-    const uint16_t              xresPin_;
+    const int16_t               xresPin_;
 
     static Bootloader *         self_;      // singleton
 };

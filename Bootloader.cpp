@@ -170,7 +170,6 @@ Bootloader::~Bootloader()
 
 static bool resetDevice(GPIO *xres)
 {
-    printf("\nResetting device...\n");
     STATUS st = xres->set(false);    // pulling low
     if(st != STATUS_SUCCESS)
     {
@@ -209,6 +208,7 @@ int Bootloader::load(const char *file)
     {
         if(xres)
         {
+            printf("\nResetting device...\n");
             STATUS st = xres->open();
             if(st != STATUS_SUCCESS)
             {
