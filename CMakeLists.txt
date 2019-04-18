@@ -1,12 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 project (bootloader-tool)
 
-set(DHCOM_HAL_INCLUDE ../DHCOM_HAL/include CACHE PATH "DHCOM_HAL include files")
-
 include_directories(
     .
     cybootloaderutils
-    ${DHCOM_HAL_INCLUDE}
+    ${DHCOM_HAL_INCLUDE_DIRS}
 )
 
 add_definitions(
@@ -36,7 +34,5 @@ set(HEADERS
 
 file(GLOB_RECURSE OTHER . *.cfg *.txt *.sh)
 
-find_library(DHCOM_HAL DHCOM_HAL)
-
 add_executable(bootloader-tool ${SOURCES} ${HEADERS})
-target_link_libraries(bootloader-tool ${DHCOM_HAL})
+target_link_libraries(bootloader-tool DHCOM_HAL)
