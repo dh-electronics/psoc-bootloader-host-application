@@ -35,7 +35,6 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-
     int xres_gpio = XRES_GPIO_INVALID;
     const char *device_name = NULL;
     int speed = -1;

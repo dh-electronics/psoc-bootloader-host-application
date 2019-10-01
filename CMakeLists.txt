@@ -4,7 +4,6 @@ project (bootloader-tool)
 include_directories(
     .
     cybootloaderutils
-    ${DHCOM_HAL_INCLUDE_DIRS}
 )
 
 add_definitions(
@@ -34,5 +33,11 @@ set(HEADERS
 
 file(GLOB_RECURSE OTHER . *.cfg *.txt *.sh)
 
-add_executable(bootloader-tool ${SOURCES} ${HEADERS})
-target_link_libraries(bootloader-tool DHCOM_HAL)
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+target_link_libraries(${PROJECT_NAME}
+    DHCOM_HAL
+)
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+)
