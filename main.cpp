@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
         if(err_string)
         {
-            fprintf(stderr, err_string);
+            fprintf(stderr, "s", err_string);
             exit(EXIT_FAILURE);
         }
     }
