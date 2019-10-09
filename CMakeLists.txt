@@ -1,11 +1,5 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 project (bootloader-tool)
-
-include_directories(
-    .
-    cybootloaderutils
-    ${DHCOM_HAL_INCLUDE_DIRS}
-)
 
 add_definitions(
     -DCALL_CON=
@@ -35,6 +29,13 @@ set(HEADERS
 file(GLOB_RECURSE OTHER . *.cfg *.txt *.sh)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/
+        ${CMAKE_CURRENT_SOURCE_DIR}/cybootloaderutils
+)
+
 target_link_libraries(${PROJECT_NAME}
     DHCOM_HAL
 )
