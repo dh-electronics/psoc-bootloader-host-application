@@ -2,7 +2,7 @@
 
 
 #include "CommDevice.h"
-#include "hal/SPI.h"
+#include <hal/SPI.h>
 
 
 class SpiDevice : public CommDevice

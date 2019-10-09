@@ -4,6 +4,7 @@ project (bootloader-tool)
 include_directories(
     .
     cybootloaderutils
+    ${DHCOM_HAL_INCLUDE_DIRS}
 )
 
 add_definitions(
