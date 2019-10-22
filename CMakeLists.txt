@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
-project (bootloader-tool)
+project (psoc-bootloader-tool)
 
 add_definitions(
     -DCALL_CON=
