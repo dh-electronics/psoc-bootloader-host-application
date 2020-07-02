@@ -1,4 +1,5 @@
 #include "Bootloader.h"
+#include "hal/System.h"
 #include "hal/GPIO.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -126,11 +127,11 @@ static const char * getGpioErrorString(STATUS status)
 {
     switch(status)
     {
-    case STATUS_DEVICE_OPEN_FAILED:			return "Opening I/O device failed";
+    case STATUS_DEVICE_OPEN_FAILED:		return "Opening I/O device failed";
     case STATUS_DEVICE_CLOSE_FAILED:		return "Closing I/O failed";
-    case STATUS_DEVICE_NOT_OPEN:			return "Device must be open to perform the requested operation";
+    case STATUS_DEVICE_NOT_OPEN:		return "Device must be open to perform the requested operation";
     case STATUS_DEVICE_ALREADY_OPEN:		return "Trying to open the already open device";
-    case STATUS_DEVICE_READ_FAILED:			return "Reading from the device failed";
+    case STATUS_DEVICE_READ_FAILED:		return "Reading from the device failed";
     case STATUS_DEVICE_WRITE_FAILED:		return "Writing to the device failed";
     case STATUS_DEVICE_CONFIG_FAILED:		return "Attempt to configure the device failed (parameters invalid)";
     default:                                return "Unknown error";
@@ -145,12 +146,13 @@ static void progressUpdate(uint8_t arrayId, uint16_t rowNum)
 
 
 
-Bootloader::Bootloader(CommDevice *dev, uint16_t xresPin, uint32_t expSiId, uint32_t expSiRev)
+Bootloader::Bootloader(CommDevice *dev, uint16_t xresPin, const char *xres_gpio_label, uint32_t expSiId, uint32_t expSiRev)
     : device_(dev)
     , expSiId_(expSiId)
     , expSiRev_(expSiRev)
     , blVer_(0)
     , xresPin_(xresPin)
+    , xres_gpio_label_(xres_gpio_label)
 {
     assert(!self_);
     commData.CloseConnection = closeConnection;
@@ -195,7 +197,20 @@ int Bootloader::load(const char *file)
     GPIO *xres = NULL;
     if(xresPin_ != XRES_GPIO_SUPRESS)
     {
-        xres = new GPIO(xresPin_);
+        if (xres_gpio_label_ != NULL and xresPin_ == XRES_GPIO_LABEL)
+        {
+            System system = System();
+            system.setHardware(System::detectSoC());
+
+            std::string s(xres_gpio_label_);
+            for (auto & c: s) c = toupper(c);
+            int gpio_index = int(s.at(0) - 'A');
+
+            xres = new GPIO(system, GPIO::PORT(gpio_index));
+        }
+        else
+            xres = new GPIO(xresPin_);
+
         if(!xres)
         {
             fprintf(stderr, "\nCannot create XRES GPIO\n");

@@ -16,9 +16,10 @@
 
 static void showHelp()
 {
-    printf( "bootloader-tool [-x XRES-GPIO | -n] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
+    printf( "bootloader-tool [-x XRES-GPIO | -n | -l LABEL-XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
             "\n\t-n\t- do not use XRES-GPIO"
             "\n\tXRES-GPIO\t- gpio in the form for export in /sys/class/gpio"
+            "\n\tLABEL-XRES-GPIO\t- gpio in the form label for libgpiod"
             "\n\tDEVICE\t- the full pathname of the SPI/I2C/UART device, e.g /dev/spidev0.2"
             "\n\tSPEED\t- speed in bps."
             "\n\tID\t- silicon id, 32-bit HEX."
@@ -36,13 +37,14 @@ int main(int argc, char **argv)
     }
 
     int xres_gpio = XRES_GPIO_INVALID;
+    const char *xres_gpio_label = NULL;
     const char *device_name = NULL;
     int speed = -1;
     uint32_t silicon_id = 0xFFFFFFFF;
     uint32_t silicon_rev = 0xFFFFFFFF;
 
     int opt;
-    while((opt = getopt(argc, argv, "hnx:d:s:i:r:")) != -1)
+    while((opt = getopt(argc, argv, "hnx:d:s:i:r:l:")) != -1)
     {
         const char *err_string = NULL;
         switch(opt)
@@ -64,6 +66,15 @@ int main(int argc, char **argv)
 
             if(1 != sscanf(optarg, "%d", &xres_gpio))
                 err_string = "\nArgument conversion error for option -x. Aborting.\n";
+            break;
+
+        case 'l':
+            if(!xres_gpio_label) {
+                xres_gpio_label = optarg;
+                xres_gpio = XRES_GPIO_LABEL;
+            }
+            else
+                err_string = "\nLabel for XRES GPIO (-l) already specified. Aborting.\n";
             break;
 
         case 'd':
@@ -160,7 +171,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    Bootloader bl(device, xres_gpio, silicon_id, silicon_rev);
+    Bootloader bl(device, xres_gpio, xres_gpio_label, silicon_id, silicon_rev);
     const int code = bl.load(cyacd_filename);
     delete device;
     return code;
