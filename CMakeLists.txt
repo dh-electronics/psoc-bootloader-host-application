@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.13)
 project (psoc-bootloader-tool)
 
 add_definitions(
@@ -37,9 +37,13 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    DHCOM_HAL
+    dhcom-hal
 )
 
+include(GNUInstallDirs)
+
 install(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION bin
+    RUNTIME
+    DESTINATION ${CMAKE_INSTALL_BINDIR}/${CMAKE_LIBRARY_ARCHITECTURE}
+    COMPONENT bin
 )
