@@ -1,6 +1,12 @@
 cmake_minimum_required (VERSION 3.0)
 project (psoc-bootloader-tool)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_compile_options(-std=c++11)
+add_compile_options(-fPIC)
+
 add_definitions(
     -DCALL_CON=
 )
