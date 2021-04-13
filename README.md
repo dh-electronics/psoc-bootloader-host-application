@@ -9,13 +9,13 @@ Usage of bootloader-tool
 root@dhsom:~# psoc-bootloader-tool
 ```bash
 psoc-bootloader-tool [-x XRES-GPIO | -n | -l LABEL-XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd
-        -n      	     - do not use XRES-GPIO
+        -n               - do not use XRES-GPIO
         XRES-GPIO        - gpio in the form for export in /sys/class/gpio
-        LABEL-XRES-GPIO  - gpio in the form label for libgpiod"
-        DEVICE  	     - the full pathname of the SPI/I2C/UART device, e.g /dev/spidev0.2
-        SPEED   	     - speed in bps.
-        ID      	     - silicon id, 32-bit HEX.
-        REV     	     - silicon revision, 32-bit HEX.
+        LABEL-XRES-GPIO  - gpio in the form label for libgpiod
+        DEVICE           - the full pathname of the SPI/I2C/UART device, e.g /dev/spidev0.2
+        SPEED            - speed in bps.
+        ID               - silicon id, 32-bit HEX.
+        REV              - silicon revision, 32-bit HEX.
 ```
 
 **Example i.mx6qdls:** update PSoC 4 from DHCOM i.mx6qdls through SPI1 in baseboard e.g. DRC02
