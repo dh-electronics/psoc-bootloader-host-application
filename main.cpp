@@ -16,7 +16,7 @@
 
 static void showHelp()
 {
-    printf( "bootloader-tool [-x XRES-GPIO | -n | -l LABEL-XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
+    printf( "psoc-bootloader-tool [-x XRES-GPIO | -n | -l LABEL-XRES-GPIO] [-d DEVICE] [-s SPEED] [-i ID] [-r REV] file.cyacd"
             "\n\t-n\t- do not use XRES-GPIO"
             "\n\tXRES-GPIO\t- gpio in the form for export in /sys/class/gpio"
             "\n\tLABEL-XRES-GPIO\t- gpio in the form label for libgpiod"
