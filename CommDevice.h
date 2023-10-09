@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: (c) 2018-2023 DH electronics GmbH
+
 #pragma once
 
 
